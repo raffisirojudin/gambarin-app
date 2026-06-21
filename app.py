@@ -1,10 +1,9 @@
 """
-Gambarin - AI Image Generator & Editor
-Streamlit app: generate dan edit gambar dari teks, 100% gratis,
-menggunakan Pollinations.ai (Flux / Z-Image / Kontext).
+Gambarin - AI Image Generator
+Streamlit app: generate gambar dari teks, 100% gratis,
+menggunakan Pollinations.ai (Flux / Z-Image).
 """
 
-import base64
 import random
 import urllib.parse
 from datetime import datetime
@@ -19,8 +18,6 @@ st.set_page_config(page_title="Gambarin", page_icon="🖌️", layout="centered"
 
 APP_VERSION = "v1.0"
 IMAGE_API_BASE = "https://image.pollinations.ai/prompt/"
-EDITS_API_URL = "https://gen.pollinations.ai/v1/images/edits"
-IMAGE_MIME_MAP = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "webp": "image/webp"}
 
 BRUSHSTROKE_SVG = """
 <div style="margin: 0.25rem 0 1.75rem 0;">
