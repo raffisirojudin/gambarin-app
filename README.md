@@ -5,7 +5,11 @@ Aplikasi web untuk generate dan edit gambar dari teks — **100% gratis, $0**, d
 ## Fitur
 
 - 🎨 **Generate Gambar dari Teks** — pilih gaya (Realistis/Kartun/Anime/Watercolor/dll), ukuran, dan model (Flux / Z-Image)
-- ✏️ **Edit Gambar** — ubah gambar yang sudah dibuat dengan instruksi teks (model Kontext), misal "ubah jadi malam hari"
+- 🔀 **Variasi Gambar** — generate 1, 2, atau 4 variasi sekaligus dari prompt yang sama
+- 💡 **Ide Acak** — tombol kasih prompt contoh random kalau lagi buntu ide
+- ✏️ **Edit Gambar** — di tab Galeri, tiap gambar punya tombol "Edit" buat transformasi lebih lanjut pakai instruksi teks (misal "ubah jadi malam hari")
+- 🔄 **Bandingkan Sebelum/Sesudah** — hasil edit ditampilkan bersebelahan dengan gambar aslinya
+- ℹ️ **Info Detail Gambar** — lihat prompt lengkap, model, seed, dan ukuran tiap gambar di galeri
 - 🖼️ **Galeri Sesi** — semua gambar yang dibuat tersimpan, bisa di-download atau dihapus
 - 🔒 **Proteksi Password (opsional)** — set `APP_PASSWORD` di Secrets
 - 📱 **Dropdown Navigasi** — ringkas dan mobile-friendly
