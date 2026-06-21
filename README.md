@@ -9,6 +9,7 @@ Aplikasi web untuk generate dan edit gambar dari teks — **100% gratis, $0**, d
 - 🔀 **Variasi Gambar** — generate 1, 2, atau 4 variasi sekaligus dari prompt yang sama
 - 💡 **Ide Acak** — tombol kasih prompt contoh random kalau lagi buntu ide
 - ✏️ **Edit Gambar** — di tab Galeri, tiap gambar punya tombol "Edit" buat transformasi lebih lanjut pakai instruksi teks (misal "ubah jadi malam hari")
+- 📤 **Edit Foto Sendiri** — upload foto kamu sendiri (bukan cuma gambar yang dibuat di app ini), beri instruksi, AI ubah sesuai permintaan. ⚠️ Butuh API Key Pollinations (beda dari Generate Gambar biasa yang bisa tanpa key)
 - 🔄 **Bandingkan Sebelum/Sesudah** — hasil edit ditampilkan bersebelahan dengan gambar aslinya
 - ℹ️ **Info Detail Gambar** — lihat prompt lengkap, model, seed, dan ukuran tiap gambar di galeri
 - 🖼️ **Galeri Sesi** — semua gambar yang dibuat tersimpan, bisa di-download atau dihapus
