@@ -1,15 +1,15 @@
 [theme]
 base = "dark"
 primaryColor = "#D97A4D"
-backgroundColor = "#3A2117"
-secondaryBackgroundColor = "#4A2B1C"
-textColor = "#F6E8D8"
-borderColor = "#7A4A2E"
+backgroundColor = "#211F1D"
+secondaryBackgroundColor = "#2D2A27"
+textColor = "#EDE8E2"
+borderColor = "#4A4540"
 showWidgetBorder = true
 baseRadius = "small"
 font = "Karla:https://fonts.googleapis.com/css2?family=Karla:wght@400;500;700&display=swap"
 headingFont = "Fraunces:https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&display=swap"
 
 [theme.sidebar]
-backgroundColor = "#241308"
-secondaryBackgroundColor = "#4A2B1C"
+backgroundColor = "#171513"
+secondaryBackgroundColor = "#2D2A27"
