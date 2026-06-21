@@ -248,7 +248,7 @@ with st.sidebar:
 # ============================================================
 # PILIH FITUR
 # ============================================================
-FEATURE_OPTIONS = ["🖌️ Generate Gambar", "📤 Edit Foto Sendiri", "🖼️ Galeri & Edit"]
+FEATURE_OPTIONS = ["🖌️ Generate Gambar", "📤 Edit Foto Sendiri(coming soon)", "🖼️ Galeri & Edit(dalam pengerjaan)"]
 selected_feature = st.selectbox("🧭 Pilih fitur", FEATURE_OPTIONS, key="feature_select")
 st.divider()
 
