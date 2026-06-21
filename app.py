@@ -41,6 +41,25 @@ MODEL_PRESETS = {
     "Z-Image (alternatif gaya)": "zimage",
 }
 
+VARIATION_OPTIONS = [1, 2, 4]
+
+EXAMPLE_PROMPTS = [
+    "kucing oranye duduk di jendela sambil melihat hujan turun",
+    "kota futuristik di malam hari dengan lampu neon menyala",
+    "pegunungan bersalju saat matahari terbenam, langit jingga",
+    "robot kecil sedang merawat tanaman di taman ajaib",
+    "kedai kopi tradisional Jepang dengan suasana hangat",
+    "naga berwarna biru terbang di atas lautan awan",
+    "perpustakaan tua dengan rak buku menjulang tinggi dan cahaya matahari",
+    "astronot duduk santai di permukaan bulan sambil minum teh",
+    "rumah pohon kecil di tengah hutan yang dipenuhi kunang-kunang",
+    "pasar tradisional yang ramai saat pagi hari, penuh warna",
+]
+
+
+def set_random_prompt():
+    st.session_state["prompt_input"] = random.choice(EXAMPLE_PROMPTS)
+
 
 # ============================================================
 # PROTEKSI PASSWORD (opsional -- aktif kalau APP_PASSWORD diisi di Secrets)
@@ -100,7 +119,10 @@ init_session_state()
 
 
 def reset_all():
-    keys_to_clear = ["gallery", "prompt_input", "style_choice", "size_choice", "model_choice"]
+    keys_to_clear = [
+        "gallery", "prompt_input", "style_choice", "size_choice",
+        "model_choice", "variation_count", "last_batch",
+    ]
     for k in keys_to_clear:
         st.session_state.pop(k, None)
 
@@ -143,7 +165,7 @@ def handle_image_error(e):
         st.error(f"Gagal memproses gambar: {msg}")
 
 
-def add_to_gallery(prompt, model, width, height, seed, image_bytes, source_url, parent_prompt=None):
+def add_to_gallery(prompt, model, width, height, seed, image_bytes, source_url, parent_prompt=None, parent_image_bytes=None):
     st.session_state.gallery.insert(0, {
         "time": datetime.now().strftime("%H:%M:%S"),
         "prompt": prompt,
@@ -154,6 +176,7 @@ def add_to_gallery(prompt, model, width, height, seed, image_bytes, source_url, 
         "image_bytes": image_bytes,
         "source_url": source_url,
         "parent_prompt": parent_prompt,
+        "parent_image_bytes": parent_image_bytes,
     })
 
 
@@ -193,6 +216,7 @@ st.divider()
 
 # ---------- FITUR: GENERATE GAMBAR ----------
 if selected_feature == "🎨 Generate Gambar":
+    st.button("🎲 Ide Acak", on_click=set_random_prompt, key="btn_random_prompt")
     prompt = st.text_area(
         "Deskripsikan gambar yang kamu mau",
         height=120,
@@ -206,7 +230,11 @@ if selected_feature == "🎨 Generate Gambar":
     with col2:
         size_choice = st.selectbox("Ukuran", list(SIZE_PRESETS.keys()), key="size_choice")
 
-    model_choice = st.radio("Model", list(MODEL_PRESETS.keys()), horizontal=True, key="model_choice")
+    col3, col4 = st.columns(2)
+    with col3:
+        model_choice = st.radio("Model", list(MODEL_PRESETS.keys()), key="model_choice")
+    with col4:
+        variation_count = st.radio("Jumlah variasi", VARIATION_OPTIONS, horizontal=True, key="variation_count")
 
     if st.button("🎨 Buat Gambar", type="primary", use_container_width=True, key="btn_generate"):
         if not prompt.strip():
@@ -216,29 +244,36 @@ if selected_feature == "🎨 Generate Gambar":
             full_prompt = f"{prompt}, {style_suffix}" if style_suffix else prompt
             width, height = SIZE_PRESETS[size_choice]
             model = MODEL_PRESETS[model_choice]
-            seed = random.randint(0, 999_999)
 
-            url = build_image_url(full_prompt, model, width, height, seed)
+            generated_batch = []
             try:
-                with st.spinner("Sedang membuat gambar... (bisa sampai 30 detik)"):
-                    image_bytes = fetch_image(url, pollinations_key)
-                add_to_gallery(prompt, model, width, height, seed, image_bytes, url)
-                st.session_state.last_generated = image_bytes
+                with st.spinner(f"Sedang membuat {variation_count} gambar... (bisa sampai 30 detik per gambar)"):
+                    for _ in range(variation_count):
+                        seed = random.randint(0, 999_999)
+                        url = build_image_url(full_prompt, model, width, height, seed)
+                        image_bytes = fetch_image(url, pollinations_key)
+                        add_to_gallery(prompt, model, width, height, seed, image_bytes, url)
+                        generated_batch.append(image_bytes)
+                st.session_state.last_batch = generated_batch
             except Exception as e:
                 handle_image_error(e)
 
-    if st.session_state.gallery and st.session_state.gallery[0]["image_bytes"] == st.session_state.get("last_generated"):
-        latest = st.session_state.gallery[0]
+    if st.session_state.get("last_batch"):
+        batch = st.session_state.last_batch
         with st.container(border=True):
             st.subheader("🖼️ Hasil")
-            st.image(latest["image_bytes"], use_container_width=True)
-            st.download_button(
-                "📥 Download Gambar",
-                data=latest["image_bytes"],
-                file_name=f"gambarin_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg",
-                mime="image/jpeg",
-                key="dl_latest",
-            )
+            cols = st.columns(len(batch))
+            for idx, (col, img) in enumerate(zip(cols, batch)):
+                with col:
+                    st.image(img, use_container_width=True)
+                    st.download_button(
+                        "📥 Download" if len(batch) == 1 else f"📥 #{idx + 1}",
+                        data=img,
+                        file_name=f"gambarin_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{idx + 1}.jpg",
+                        mime="image/jpeg",
+                        key=f"dl_batch_{idx}",
+                        use_container_width=True,
+                    )
 
 # ---------- FITUR: GALERI & EDIT ----------
 elif selected_feature == "🖼️ Galeri & Edit":
@@ -249,9 +284,25 @@ elif selected_feature == "🖼️ Galeri & Edit":
     else:
         for i, item in enumerate(st.session_state.gallery):
             with st.container(border=True):
-                st.image(item["image_bytes"], use_container_width=True)
+                if item.get("parent_image_bytes"):
+                    col_before, col_after = st.columns(2)
+                    with col_before:
+                        st.image(item["parent_image_bytes"], caption="Sebelum", use_container_width=True)
+                    with col_after:
+                        st.image(item["image_bytes"], caption="Sesudah", use_container_width=True)
+                else:
+                    st.image(item["image_bytes"], use_container_width=True)
+
                 label = item["prompt"][:80] + ("..." if len(item["prompt"]) > 80 else "")
                 st.caption(f"🕒 {item['time']} · _{label}_")
+
+                with st.expander("ℹ️ Info Detail"):
+                    st.write(f"**Prompt:** {item['prompt']}")
+                    st.write(f"**Model:** `{item['model']}`")
+                    st.write(f"**Ukuran:** {item['width']} x {item['height']}")
+                    st.write(f"**Seed:** {item['seed']}")
+                    if item.get("parent_prompt"):
+                        st.write(f"**Diedit dari prompt:** {item['parent_prompt']}")
 
                 col_a, col_b = st.columns(2)
                 with col_a:
@@ -286,6 +337,7 @@ elif selected_feature == "🖼️ Galeri & Edit":
                                 add_to_gallery(
                                     edit_instruction, "kontext", item["width"], item["height"],
                                     edit_seed, edited_bytes, edit_url, parent_prompt=item["prompt"],
+                                    parent_image_bytes=item["image_bytes"],
                                 )
                                 st.rerun()
                             except Exception as e:
