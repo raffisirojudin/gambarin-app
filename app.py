@@ -37,8 +37,8 @@ SIZE_PRESETS = {
 }
 
 MODEL_PRESETS = {
-    "Z-Image (default, seimbang)": "zimage",
-    "Flux (detail tinggi)": "flux",
+    "Flux (gratis selamanya)": "flux",
+    "Z-Image (alternatif gaya)": "zimage",
 }
 
 
