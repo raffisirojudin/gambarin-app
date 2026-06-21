@@ -22,8 +22,14 @@ IMAGE_API_BASE = "https://image.pollinations.ai/prompt/"
 BRUSHSTROKE_SVG = """
 <div style="margin: 0.25rem 0 1.75rem 0;">
 <svg width="100%" height="16" viewBox="0 0 600 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="brushGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#D97A4D"/>
+      <stop offset="100%" stop-color="#2B7A78"/>
+    </linearGradient>
+  </defs>
   <path d="M2,9 C60,3 120,14 180,7 C260,-1 340,15 420,6 C480,0 540,12 598,7"
-        stroke="#C08B3E" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.85"/>
+        stroke="url(#brushGrad)" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.9"/>
 </svg>
 </div>
 """
