@@ -14,10 +14,19 @@ import streamlit as st
 # ============================================================
 # KONFIGURASI HALAMAN & KONSTANTA
 # ============================================================
-st.set_page_config(page_title="Gambarin", page_icon="🎨", layout="centered")
+st.set_page_config(page_title="Gambarin", page_icon="🖌️", layout="centered")
 
 APP_VERSION = "v1.0"
 IMAGE_API_BASE = "https://image.pollinations.ai/prompt/"
+
+BRUSHSTROKE_SVG = """
+<div style="margin: 0.25rem 0 1.75rem 0;">
+<svg width="100%" height="16" viewBox="0 0 600 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M2,9 C60,3 120,14 180,7 C260,-1 340,15 420,6 C480,0 540,12 598,7"
+        stroke="#C08B3E" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.85"/>
+</svg>
+</div>
+"""
 
 STYLE_PRESETS = {
     "Default (tanpa gaya tambahan)": "",
@@ -76,7 +85,7 @@ if _app_password:
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
     if not st.session_state.authenticated:
-        st.title("🎨 Gambarin")
+        st.title("🖌️ Gambarin")
         st.caption("🔒 Aplikasi ini dilindungi password.")
         pwd_input = st.text_input("Masukkan password", type="password", key="app_password_gate")
         if st.button("Masuk", type="primary"):
@@ -91,16 +100,17 @@ if _app_password:
 # ============================================================
 # HEADER
 # ============================================================
-st.title("🎨 Gambarin")
-st.caption("Generate dan edit gambar dari teks — 100% gratis, ditenagai Pollinations.ai")
+st.title("🖌️ Gambarin")
+st.caption("Atelier digital — lukis apa saja dari kata-kata, sepenuhnya gratis.")
+st.markdown(BRUSHSTROKE_SVG, unsafe_allow_html=True)
 
 badge_col1, badge_col2, badge_col3 = st.columns(3)
 with badge_col1:
-    st.badge("Flux & Z-Image", icon="🖼️", color="violet")
+    st.badge("Flux & Z-Image", icon="🖌️", color="orange")
 with badge_col2:
-    st.badge("Gratis $0", icon="💚", color="green")
+    st.badge("Gratis $0", icon="🌿", color="green")
 with badge_col3:
-    st.badge(APP_VERSION, icon="🚀", color="blue")
+    st.badge(APP_VERSION, icon="🖼️", color="blue")
 
 st.divider()
 
@@ -186,8 +196,8 @@ def add_to_gallery(prompt, model, width, height, seed, image_bytes, source_url, 
 secret_key = get_secret_pollinations_key()
 
 with st.sidebar:
-    st.markdown("### 🎨 Gambarin")
-    st.caption("AI Image Generator & Editor")
+    st.markdown("### 🖌️ Gambarin")
+    st.caption("Atelier Digital")
     st.divider()
 
     st.header("⚙️ Konfigurasi")
@@ -210,12 +220,12 @@ with st.sidebar:
 # ============================================================
 # PILIH FITUR
 # ============================================================
-FEATURE_OPTIONS = ["🎨 Generate Gambar", "🖼️ Galeri & Edit"]
+FEATURE_OPTIONS = ["🖌️ Generate Gambar", "🖼️ Galeri & Edit"]
 selected_feature = st.selectbox("🧭 Pilih fitur", FEATURE_OPTIONS, key="feature_select")
 st.divider()
 
 # ---------- FITUR: GENERATE GAMBAR ----------
-if selected_feature == "🎨 Generate Gambar":
+if selected_feature == "🖌️ Generate Gambar":
     st.button("🎲 Ide Acak", on_click=set_random_prompt, key="btn_random_prompt")
     prompt = st.text_area(
         "Deskripsikan gambar yang kamu mau",
@@ -236,7 +246,7 @@ if selected_feature == "🎨 Generate Gambar":
     with col4:
         variation_count = st.radio("Jumlah variasi", VARIATION_OPTIONS, horizontal=True, key="variation_count")
 
-    if st.button("🎨 Buat Gambar", type="primary", use_container_width=True, key="btn_generate"):
+    if st.button("🖌️ Buat Gambar", type="primary", use_container_width=True, key="btn_generate"):
         if not prompt.strip():
             st.warning("Tulis deskripsi gambar yang kamu mau terlebih dahulu.")
         else:
@@ -352,4 +362,4 @@ elif selected_feature == "🖼️ Galeri & Edit":
 # FOOTER
 # ============================================================
 st.divider()
-st.caption(f"🎨 Gambarin {APP_VERSION} · Ditenagai Pollinations.ai (gratis) · Proyek pembelajaran AI API")
+st.caption(f"🖌️ Gambarin {APP_VERSION} · Ditenagai Pollinations.ai (gratis) · Proyek pembelajaran AI API")
