@@ -4,6 +4,7 @@ Aplikasi web untuk generate dan edit gambar dari teks — **100% gratis, $0**, d
 
 ## Fitur
 
+- 🎭 **Tema "Atelier Senja"** — identitas visual khas studio pelukis: latar gelap hangat, aksen kuningan/ochre, tipografi serif (Fraunces + Karla), beda total dari tema SummaRise
 - 🎨 **Generate Gambar dari Teks** — pilih gaya (Realistis/Kartun/Anime/Watercolor/dll), ukuran, dan model (Flux / Z-Image)
 - 🔀 **Variasi Gambar** — generate 1, 2, atau 4 variasi sekaligus dari prompt yang sama
 - 💡 **Ide Acak** — tombol kasih prompt contoh random kalau lagi buntu ide
