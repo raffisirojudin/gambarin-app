@@ -4,7 +4,7 @@ Aplikasi web untuk generate dan edit gambar dari teks — **100% gratis, $0**, d
 
 ## Fitur
 
-- 🎨 **Generate Gambar dari Teks** — pilih gaya (Realistis/Kartun/Anime/Watercolor/dll), ukuran, dan model (Z-Image / Flux)
+- 🎨 **Generate Gambar dari Teks** — pilih gaya (Realistis/Kartun/Anime/Watercolor/dll), ukuran, dan model (Flux / Z-Image)
 - ✏️ **Edit Gambar** — ubah gambar yang sudah dibuat dengan instruksi teks (model Kontext), misal "ubah jadi malam hari"
 - 🖼️ **Galeri Sesi** — semua gambar yang dibuat tersimpan, bisa di-download atau dihapus
 - 🔒 **Proteksi Password (opsional)** — set `APP_PASSWORD` di Secrets
@@ -50,7 +50,8 @@ streamlit run app.py
 
 ## Catatan teknis
 
-- **Model**: `zimage` (default, seimbang) dan `flux` (detail tinggi) untuk generate; `kontext` untuk edit gambar berbasis instruksi
+- **Model**: `flux` (default — satu-satunya model yang dijamin gratis selamanya oleh Pollinations) dan `zimage` (alternatif gaya) untuk generate; `kontext` untuk edit gambar berbasis instruksi
+- ⚠️ Fitur **Edit Gambar** memakai model `kontext`, yang **belum dipastikan gratis tanpa batas** seperti Flux. Kalau bikin API key di Pollinations, batasi budget-nya ke angka kecil (misal 1-2 Pollen) sebagai jaring pengaman.
 - **Determinisme**: setiap gambar pakai `seed` acak yang disimpan, supaya gambar yang sama bisa di-edit ulang secara konsisten
 - **Galeri hanya tersimpan selama sesi browser aktif** (`st.session_state`) — refresh halaman akan menghapusnya
 - Tidak ada token/cost tracker di app ini karena memang **tidak ada biaya** — beda dengan SummaRise yang pakai Gemini API
