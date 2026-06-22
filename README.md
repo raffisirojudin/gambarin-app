@@ -1,24 +1,22 @@
-# Gambarin - AI Image Generator & Editor
+# Gambarin - AI Image Generator
 
-Aplikasi web untuk generate dan edit gambar dari teks — **100% gratis, $0**, ditenagai [Pollinations.ai](https://pollinations.ai). Dibangun dengan Streamlit.
+Aplikasi web untuk generate gambar dari teks — **100% gratis, $0, tanpa pengecualian** — ditenagai [Pollinations.ai](https://pollinations.ai). Dibangun dengan Streamlit.
 
 ## Fitur
 
-- 🎭 **Tema "Atelier Senja"** — identitas visual khas studio pelukis: latar gelap hangat, aksen kuningan/ochre, tipografi serif (Fraunces + Karla), beda total dari tema SummaRise
+- 🎭 **Tema "Atelier Senja"** — identitas visual khas studio pelukis: latar netral hangat (aman buat gambar warna apapun), aksen terracotta-teal yang saling melengkapi, tipografi serif (Fraunces + Karla)
 - 🎨 **Generate Gambar dari Teks** — pilih gaya (Realistis/Kartun/Anime/Watercolor/dll), ukuran, dan model (Flux / Z-Image)
 - 🔀 **Variasi Gambar** — generate 1, 2, atau 4 variasi sekaligus dari prompt yang sama
 - 💡 **Ide Acak** — tombol kasih prompt contoh random kalau lagi buntu ide
-- ✏️ **Edit Gambar** — di tab Galeri, tiap gambar punya tombol "Edit" buat transformasi lebih lanjut pakai instruksi teks (misal "ubah jadi malam hari")
-- 📤 **Edit Foto Sendiri** — upload foto kamu sendiri (bukan cuma gambar yang dibuat di app ini), beri instruksi, AI ubah sesuai permintaan. ⚠️ Butuh API Key Pollinations (beda dari Generate Gambar biasa yang bisa tanpa key)
-- 🔄 **Bandingkan Sebelum/Sesudah** — hasil edit ditampilkan bersebelahan dengan gambar aslinya
-- ℹ️ **Info Detail Gambar** — lihat prompt lengkap, model, seed, dan ukuran tiap gambar di galeri
-- 🖼️ **Galeri Sesi** — semua gambar yang dibuat tersimpan, bisa di-download atau dihapus
+- 🖼️ **Galeri Sesi** — semua gambar yang dibuat tersimpan, bisa di-download atau dihapus, lengkap dengan info detail (prompt, model, seed, ukuran)
 - 🔒 **Proteksi Password (opsional)** — set `APP_PASSWORD` di Secrets
 - 📱 **Dropdown Navigasi** — ringkas dan mobile-friendly
 
 ## Kenapa gratis?
 
-Aplikasi ini memakai [Pollinations.ai](https://pollinations.ai), platform open-source yang menyediakan akses gratis ke model gambar (Flux, Z-Image, Kontext) tanpa API key wajib. Mendaftar API key (gratis, opsional) di [enter.pollinations.ai](https://enter.pollinations.ai) hanya menaikkan limit & menghilangkan watermark — bukan syarat wajib.
+Aplikasi ini memakai model **Flux** dari [Pollinations.ai](https://pollinations.ai), yang menurut dokumentasi resmi mereka **gratis tanpa batas, selamanya**, tanpa API key wajib. Mendaftar API key (gratis, opsional) di [enter.pollinations.ai](https://enter.pollinations.ai) hanya menaikkan limit & menghilangkan watermark — bukan syarat wajib.
+
+> **Catatan:** versi awal app ini sempat punya fitur edit gambar (model `kontext`), tapi ternyata model itu memakai sistem kredit "Pollen" berbayar — bukan gratis seperti Flux. Fitur edit dihapus supaya app ini benar-benar 100% gratis tanpa jebakan biaya tersembunyi.
 
 ## 1. Install dependencies
 
@@ -27,6 +25,8 @@ pip install -r requirements.txt
 ```
 
 ## 2. (Opsional) Daftar API Key gratis
+
+Hanya diperlukan kalau mau limit lebih tinggi & tanpa watermark — generate gambar tetap berfungsi penuh tanpa ini.
 
 1. Buka https://enter.pollinations.ai
 2. Daftar gratis, salin API key-nya
@@ -41,7 +41,7 @@ pip install -r requirements.txt
 POLLINATIONS_API_KEY = "key-kamu"
 APP_PASSWORD = "password-kamu"
 ```
-Keduanya opsional — app tetap berfungsi normal tanpa diisi (tanpa proteksi password, dan tanpa key memakai limit gratis standar).
+Keduanya opsional — app tetap berfungsi normal tanpa diisi.
 
 ## 4. Jalankan aplikasi
 
@@ -51,13 +51,13 @@ streamlit run app.py
 
 ## 5. Cara pakai
 
-1. Pilih **🎨 Generate Gambar** → tulis deskripsi, pilih gaya & ukuran, klik "Buat Gambar"
-2. Pindah ke **🖼️ Galeri & Edit** → lihat semua gambar, klik "✏️ Edit gambar ini" untuk transformasi lebih lanjut, atau download
+1. Pilih **🖌️ Generate Gambar** → tulis deskripsi (atau klik "Ide Acak"), pilih gaya, ukuran, model, dan jumlah variasi
+2. Klik "Buat Gambar"
+3. Pindah ke **🖼️ Galeri** untuk lihat semua gambar yang sudah dibuat, download, atau hapus
 
 ## Catatan teknis
 
-- **Model**: `flux` (default — satu-satunya model yang dijamin gratis selamanya oleh Pollinations) dan `zimage` (alternatif gaya) untuk generate; `kontext` untuk edit gambar berbasis instruksi
-- ⚠️ Fitur **Edit Gambar** memakai model `kontext`, yang **belum dipastikan gratis tanpa batas** seperti Flux. Kalau bikin API key di Pollinations, batasi budget-nya ke angka kecil (misal 1-2 Pollen) sebagai jaring pengaman.
-- **Determinisme**: setiap gambar pakai `seed` acak yang disimpan, supaya gambar yang sama bisa di-edit ulang secara konsisten
+- **Model**: `flux` (default — gratis tanpa batas selamanya) dan `zimage` (alternatif gaya)
+- **Determinisme**: setiap gambar pakai `seed` acak yang disimpan dan ditampilkan di Info Detail
 - **Galeri hanya tersimpan selama sesi browser aktif** (`st.session_state`) — refresh halaman akan menghapusnya
 - Tidak ada token/cost tracker di app ini karena memang **tidak ada biaya** — beda dengan SummaRise yang pakai Gemini API
