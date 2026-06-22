@@ -138,7 +138,6 @@ def reset_all():
     keys_to_clear = [
         "gallery", "prompt_input", "style_choice", "size_choice",
         "model_choice", "variation_count", "last_batch",
-        "own_photo_uploader", "own_photo_instruction", "own_photo_size", "last_own_edit",
     ]
     for k in keys_to_clear:
         st.session_state.pop(k, None)
@@ -154,11 +153,9 @@ def get_secret_pollinations_key():
         return None
 
 
-def build_image_url(prompt, model, width, height, seed, reference_image_url=None):
+def build_image_url(prompt, model, width, height, seed):
     encoded_prompt = urllib.parse.quote(prompt)
     params = {"model": model, "width": width, "height": height, "seed": seed, "nologo": "true"}
-    if reference_image_url:
-        params["image"] = reference_image_url
     query = urllib.parse.urlencode(params)
     return f"{IMAGE_API_BASE}{encoded_prompt}?{query}"
 
@@ -182,28 +179,7 @@ def handle_image_error(e):
         st.error(f"Gagal memproses gambar: {msg}")
 
 
-def edit_uploaded_image(image_bytes, filename, prompt, size, api_key):
-    if not api_key:
-        raise ValueError("Fitur ini butuh API Key Pollinations. Masukkan dulu di sidebar.")
-    ext = filename.lower().split(".")[-1]
-    mime_type = IMAGE_MIME_MAP.get(ext, "image/png")
-    headers = {"Authorization": f"Bearer {api_key}"}
-    files = {"image": (filename, image_bytes, mime_type)}
-    data = {"prompt": prompt, "model": "kontext", "size": size}
-    response = requests.post(EDITS_API_URL, headers=headers, files=files, data=data, timeout=120)
-    response.raise_for_status()
-    result = response.json()
-    item = result["data"][0]
-    if item.get("b64_json"):
-        return base64.b64decode(item["b64_json"])
-    elif item.get("url"):
-        img_response = requests.get(item["url"], timeout=60)
-        img_response.raise_for_status()
-        return img_response.content
-    raise ValueError("Format respons API tidak dikenali.")
-
-
-def add_to_gallery(prompt, model, width, height, seed, image_bytes, source_url, parent_prompt=None, parent_image_bytes=None):
+def add_to_gallery(prompt, model, width, height, seed, image_bytes, source_url):
     st.session_state.gallery.insert(0, {
         "time": datetime.now().strftime("%H:%M:%S"),
         "prompt": prompt,
@@ -213,8 +189,6 @@ def add_to_gallery(prompt, model, width, height, seed, image_bytes, source_url, 
         "seed": seed,
         "image_bytes": image_bytes,
         "source_url": source_url,
-        "parent_prompt": parent_prompt,
-        "parent_image_bytes": parent_image_bytes,
     })
 
 
@@ -248,7 +222,7 @@ with st.sidebar:
 # ============================================================
 # PILIH FITUR
 # ============================================================
-FEATURE_OPTIONS = ["🖌️ Generate Gambar", "📤 Edit Foto Sendiri (coming soon)", "🖼️ Galeri & Edit (dalam pengerjaan)"]
+FEATURE_OPTIONS = ["🖌️ Generate Gambar", "🖼️ Galeri"]
 selected_feature = st.selectbox("🧭 Pilih fitur", FEATURE_OPTIONS, key="feature_select")
 st.divider()
 
@@ -313,81 +287,16 @@ if selected_feature == "🖌️ Generate Gambar":
                         use_container_width=True,
                     )
 
-# ---------- FITUR: EDIT FOTO SENDIRI ----------
-elif selected_feature == "📤 Edit Foto Sendiri":
-    st.caption("Upload foto kamu sendiri, lalu beri instruksi buat mengubahnya dengan AI.")
-
-    if not pollinations_key:
-        st.warning(
-            "⚠️ Fitur ini butuh API Key Pollinations (gratis, beda dari Generate Gambar biasa). "
-            "Masukkan di sidebar, atau daftar di [enter.pollinations.ai](https://enter.pollinations.ai)."
-        )
-
-    uploaded_photo = st.file_uploader(
-        "Upload foto (JPG/PNG/WEBP)", type=["jpg", "jpeg", "png", "webp"], key="own_photo_uploader"
-    )
-    if uploaded_photo:
-        st.image(uploaded_photo, caption="Foto asli", use_container_width=True)
-
-    edit_prompt = st.text_input(
-        "Instruksi edit (contoh: 'ubah jadi gaya lukisan cat air', 'tambahkan salju di latar')",
-        key="own_photo_instruction",
-    )
-    size_choice_own = st.selectbox("Ukuran hasil", list(SIZE_PRESETS.keys()), key="own_photo_size")
-
-    if st.button("✨ Edit Foto", type="primary", use_container_width=True, key="btn_edit_own_photo"):
-        if not pollinations_key:
-            st.error("Masukkan API Key Pollinations di sidebar terlebih dahulu.")
-        elif not uploaded_photo:
-            st.warning("Upload foto terlebih dahulu.")
-        elif not edit_prompt.strip():
-            st.warning("Tulis instruksi edit terlebih dahulu.")
-        else:
-            width, height = SIZE_PRESETS[size_choice_own]
-            try:
-                with st.spinner("Sedang mengedit foto kamu..."):
-                    original_bytes = uploaded_photo.getvalue()
-                    edited_bytes = edit_uploaded_image(
-                        original_bytes, uploaded_photo.name, edit_prompt,
-                        size=f"{width}x{height}", api_key=pollinations_key,
-                    )
-                add_to_gallery(
-                    edit_prompt, "kontext", width, height, "N/A", edited_bytes,
-                    source_url=None, parent_prompt="(Foto upload sendiri)", parent_image_bytes=original_bytes,
-                )
-                st.session_state.last_own_edit = edited_bytes
-            except Exception as e:
-                handle_image_error(e)
-
-    if st.session_state.get("last_own_edit"):
-        with st.container(border=True):
-            st.subheader("✨ Hasil Edit")
-            st.image(st.session_state.last_own_edit, use_container_width=True)
-            st.download_button(
-                "📥 Download Hasil",
-                data=st.session_state.last_own_edit,
-                file_name=f"gambarin_edit_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg",
-                mime="image/jpeg",
-                key="dl_own_edit",
-            )
-
-# ---------- FITUR: GALERI & EDIT ----------
-elif selected_feature == "🖼️ Galeri & Edit":
-    st.caption("Semua gambar yang dibuat di sesi ini. Klik 'Edit' untuk mengubah gambar tertentu.")
+# ---------- FITUR: GALERI ----------
+elif selected_feature == "🖼️ Galeri":
+    st.caption("Semua gambar yang dibuat di sesi ini.")
 
     if not st.session_state.gallery:
         st.info("Belum ada gambar. Coba buat satu dulu di tab 'Generate Gambar'.")
     else:
         for i, item in enumerate(st.session_state.gallery):
             with st.container(border=True):
-                if item.get("parent_image_bytes"):
-                    col_before, col_after = st.columns(2)
-                    with col_before:
-                        st.image(item["parent_image_bytes"], caption="Sebelum", use_container_width=True)
-                    with col_after:
-                        st.image(item["image_bytes"], caption="Sesudah", use_container_width=True)
-                else:
-                    st.image(item["image_bytes"], use_container_width=True)
+                st.image(item["image_bytes"], use_container_width=True)
 
                 label = item["prompt"][:80] + ("..." if len(item["prompt"]) > 80 else "")
                 st.caption(f"🕒 {item['time']} · _{label}_")
@@ -397,51 +306,15 @@ elif selected_feature == "🖼️ Galeri & Edit":
                     st.write(f"**Model:** `{item['model']}`")
                     st.write(f"**Ukuran:** {item['width']} x {item['height']}")
                     st.write(f"**Seed:** {item['seed']}")
-                    if item.get("parent_prompt"):
-                        st.write(f"**Diedit dari prompt:** {item['parent_prompt']}")
 
-                col_a, col_b = st.columns(2)
-                with col_a:
-                    st.download_button(
-                        "📥 Download",
-                        data=item["image_bytes"],
-                        file_name=f"gambarin_{i}.jpg",
-                        mime="image/jpeg",
-                        key=f"dl_gallery_{i}",
-                        use_container_width=True,
-                    )
-                with col_b:
-                    if item.get("source_url"):
-                        edit_open = st.toggle("✏️ Edit gambar ini", key=f"edit_toggle_{i}")
-                    else:
-                        edit_open = False
-                        st.caption("✏️ Edit lanjutan belum didukung untuk foto upload di sini.")
-
-                if edit_open:
-                    edit_instruction = st.text_input(
-                        "Instruksi edit (contoh: 'ubah jadi malam hari', 'tambahkan topi merah')",
-                        key=f"edit_instruction_{i}",
-                    )
-                    if st.button("✨ Terapkan Edit", key=f"btn_edit_{i}", use_container_width=True):
-                        if not edit_instruction.strip():
-                            st.warning("Tulis instruksi edit terlebih dahulu.")
-                        else:
-                            edit_seed = random.randint(0, 999_999)
-                            edit_url = build_image_url(
-                                edit_instruction, "kontext", item["width"], item["height"],
-                                edit_seed, reference_image_url=item["source_url"],
-                            )
-                            try:
-                                with st.spinner("Sedang mengedit gambar..."):
-                                    edited_bytes = fetch_image(edit_url, pollinations_key)
-                                add_to_gallery(
-                                    edit_instruction, "kontext", item["width"], item["height"],
-                                    edit_seed, edited_bytes, edit_url, parent_prompt=item["prompt"],
-                                    parent_image_bytes=item["image_bytes"],
-                                )
-                                st.rerun()
-                            except Exception as e:
-                                handle_image_error(e)
+                st.download_button(
+                    "📥 Download",
+                    data=item["image_bytes"],
+                    file_name=f"gambarin_{i}.jpg",
+                    mime="image/jpeg",
+                    key=f"dl_gallery_{i}",
+                    use_container_width=True,
+                )
 
         st.divider()
         if st.button("🗑️ Hapus Semua Gambar di Galeri", key="btn_clear_gallery"):
